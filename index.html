@@ -8,6 +8,303 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+/* =========================================================
+   CREATIVE HERO  (paste at the END of style.css)
+   ========================================================= */
+.hero-creative{ grid-template-columns:minmax(0,1fr) minmax(0,520px); gap:30px; overflow:hidden; }
+.hero-creative h1{ font-size:clamp(40px,5.4vw,66px); }
+
+.hero-stage{
+  position:relative; z-index:1; height:560px; width:100%;
+  display:flex; align-items:flex-end; justify-content:center;
+}
+/* giant outlined text behind the person */
+.stage-text{
+  position:absolute; z-index:0; left:50%; top:6%; transform:translateX(-50%);
+  font-family:var(--font-display); font-weight:700; line-height:.9; text-align:center;
+  font-size:clamp(76px,10vw,140px); letter-spacing:-0.04em; white-space:nowrap;
+  color:color-mix(in srgb, var(--teal) 14%, transparent);
+  -webkit-text-stroke:1.5px var(--teal);
+}
+.stage-blob{
+  position:absolute; z-index:0; bottom:0; left:50%; transform:translateX(-50%);
+  width:86%; aspect-ratio:1; border-radius:50% 50% 24px 24px;
+  background:linear-gradient(160deg, var(--teal) 0%, var(--teal-dark) 100%);
+  opacity:.92; box-shadow:var(--shadow-lg);
+}
+.stage-cutout{
+  position:relative; z-index:2; height:96%; width:auto; max-width:100%;
+  object-fit:contain; object-position:bottom;
+  filter:drop-shadow(0 18px 30px rgba(0,0,0,.28));
+}
+/* if cut-out PNG is missing, normal photo shows in a rounded frame */
+.stage-cutout.is-fallback{ height:82%; border-radius:24px; object-fit:cover; width:78%; }
+
+.chip{
+  position:absolute; z-index:3; font-family:var(--font-mono); font-size:12px; font-weight:600;
+  padding:8px 14px; border-radius:999px; background:var(--paper-raised); color:var(--ink);
+  border:1px solid var(--line); box-shadow:var(--shadow-md);
+}
+.chip-1{ top:20%; left:2%; }
+.chip-2{ top:46%; left:-2%; }
+.chip-3{ top:30%; right:0; }
+
+/* PLAY REEL card */
+.reel-card{
+  position:absolute; z-index:4; right:-2%; bottom:6%;
+  width:170px; height:118px; border-radius:16px; cursor:pointer;
+  background:linear-gradient(145deg,#1a232c,#0b1015);
+  border:1px solid rgba(255,255,255,.14); box-shadow:var(--shadow-lg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  transform:rotate(-4deg); transition:transform var(--transition);
+}
+.reel-card:hover{ transform:rotate(0) scale(1.06); }
+.reel-play{
+  width:46px; height:46px; border-radius:50%; background:#fff; color:#0b1015;
+  display:flex; align-items:center; justify-content:center; font-size:16px; padding-left:3px;
+  animation:pulse 2s infinite;
+}
+.reel-label{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:.14em; color:#cfd6da; }
+@keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(255,255,255,.5);} 100%{box-shadow:0 0 0 16px rgba(255,255,255,0);} }
+
+.intro-btn{ cursor:pointer; font-family:var(--font-body); }
+
+/* VIDEO MODAL */
+.video-modal{
+  position:fixed; inset:0; z-index:300; background:rgba(9,13,16,.92);
+  display:flex; align-items:center; justify-content:center; padding:5vh 5vw;
+  opacity:0; visibility:hidden; transition:opacity var(--transition), visibility var(--transition);
+}
+.video-modal.open{ opacity:1; visibility:visible; }
+.video-modal video{ width:min(100%,960px); max-height:85vh; border-radius:var(--radius); background:#000; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+
+@media (max-width:1080px){
+  .hero-creative{ grid-template-columns:1fr; }
+  .hero-stage{ height:500px; max-width:520px; margin:20px auto 0; }
+}
+@media (max-width:768px){
+  .hero-stage{ height:440px; }
+  .reel-card{ width:130px; height:92px; right:0; }
+  .reel-play{ width:36px; height:36px; font-size:13px; }
+  .chip-2{ left:0; }
+}
+
+/* =========================================================
+   ABOUT — FLIP ID CARD
+   ========================================================= */
+.flip-card{ position:relative; width:100%; max-width:340px; aspect-ratio:3/4; perspective:1200px; cursor:pointer; outline:none; }
+.flip-card:focus-visible{ outline:2px solid var(--teal); outline-offset:6px; border-radius:20px; }
+.flip-inner{ position:absolute; inset:0; transform-style:preserve-3d; transition:transform .85s cubic-bezier(.4,.2,.2,1); }
+.flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+.flip-card:not(.flipped):hover .flip-inner{ transform:rotateY(-8deg); }
+.flip-face{
+  position:absolute; inset:0; border-radius:20px; overflow:hidden;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border:1px solid var(--line); box-shadow:var(--shadow-lg);
+}
+.flip-front img{ width:100%; height:100%; object-fit:cover; }
+.flip-hint{
+  position:absolute; bottom:12px; left:50%; transform:translateX(-50%); white-space:nowrap;
+  font-family:var(--font-mono); font-size:11px; padding:6px 12px; border-radius:999px;
+  background:rgba(16,22,28,.72); color:#fff; backdrop-filter:blur(6px);
+}
+.flip-back{
+  transform:rotateY(180deg); padding:26px 24px 46px;
+  background:linear-gradient(160deg,#10161C 0%,#16222b 100%); color:#F2F4F1;
+  display:flex; flex-direction:column;
+}
+.flip-back .flip-hint{ background:rgba(255,255,255,.1); }
+.id-clip{ position:absolute; top:0; left:50%; width:34px; height:14px; transform:translateX(-50%); background:#33B5AF; border-radius:0 0 8px 8px; }
+.id-name{ font-size:22px; color:#fff; margin-top:10px; }
+.id-name span{ color:#33B5AF; }
+.id-role{ font-family:var(--font-mono); font-size:10.5px; letter-spacing:.08em; color:#8fa0a8; margin:4px 0 16px; }
+.id-list{ display:flex; flex-direction:column; gap:9px; font-size:12.5px; color:#d5dcde; padding-top:14px; border-top:1px solid rgba(255,255,255,.12); }
+.id-list li, .id-list a{ display:flex; align-items:center; gap:10px; word-break:break-all; }
+.id-list a:hover{ color:#33B5AF; }
+.id-list span{ width:22px; flex:none; text-align:center; color:#33B5AF; font-family:var(--font-mono); font-size:13px; }
+.id-qr-row{ margin-top:auto; display:flex; align-items:center; gap:14px; }
+.id-qr{ background:#fff; padding:6px; border-radius:10px; width:98px; height:98px; display:flex; align-items:center; justify-content:center; }
+.id-qr img, .id-qr canvas{ width:100% !important; height:100% !important; }
+.id-qr-row p{ font-size:11px; color:#8fa0a8; font-family:var(--font-mono); }
+
+/* =========================================================
+   SKILLS — CREATIVE
+   ========================================================= */
+.skill-marquee{
+  overflow:hidden; margin-bottom:40px; padding:14px 0;
+  border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);
+}
+.marquee-track{ display:flex; gap:14px; width:max-content; animation:marquee 32s linear infinite; }
+.skill-marquee:hover .marquee-track{ animation-play-state:paused; }
+.marquee-track span{
+  font-family:var(--font-display); font-size:clamp(22px,3vw,34px); font-weight:600;
+  color:transparent; -webkit-text-stroke:1px var(--ink-faint); padding:0 18px; white-space:nowrap;
+  transition:color var(--transition), -webkit-text-stroke-color var(--transition);
+}
+.marquee-track span:hover{ color:var(--teal); -webkit-text-stroke-color:var(--teal); }
+@keyframes marquee{ to{ transform:translateX(-50%); } }
+
+.skill-groups{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.skill-group{
+  position:relative; padding:30px 26px; border-radius:var(--radius); overflow:hidden;
+  background:var(--paper-raised); border:1px solid var(--line); box-shadow:var(--shadow);
+  transition:transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.skill-group::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity var(--transition);
+  background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%), color-mix(in srgb, var(--teal) 18%, transparent), transparent 70%);
+}
+.skill-group:hover{ transform:translateY(-8px); box-shadow:var(--shadow-lg); border-color:color-mix(in srgb, var(--teal) 45%, var(--line)); }
+.skill-group:hover::before{ opacity:1; }
+.sg-top{ display:flex; align-items:center; gap:14px; position:relative; }
+.sg-icon{ width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; background:color-mix(in srgb, var(--teal) 12%, transparent); }
+.sg-top h3{ font-size:24px; }
+.sg-desc{ position:relative; margin:14px 0 20px; font-size:14px; color:var(--ink-soft); }
+.sg-pills{ position:relative; display:flex; flex-wrap:wrap; gap:10px; }
+.sg-pills span{
+  font-size:13px; font-weight:500; padding:8px 14px; border-radius:999px;
+  background:var(--paper); border:1px solid var(--line);
+  transition:transform var(--transition), background var(--transition), color var(--transition), border-color var(--transition);
+}
+.sg-pills span:hover{ transform:translateY(-3px) rotate(-2deg); background:var(--teal); color:#fff; border-color:var(--teal); }
+
+@media (max-width:1080px){ .skill-groups{ grid-template-columns:1fr 1fr; } }
+@media (max-width:768px){ .skill-groups{ grid-template-columns:1fr; } .flip-card{ margin:0 auto; } }
+
+/* =========================================================
+   ID TAG — thin string + ring (clean version)
+   ========================================================= */
+.tag-wrap{ position:relative; width:100%; max-width:340px; padding-top:72px; }
+.tag-string{ position:absolute; top:0; left:50%; width:120px; height:86px; transform:translateX(-50%); z-index:6; color:var(--ink-faint); pointer-events:none; }
+.tag-hole{
+  position:absolute; top:12px; left:50%; width:34px; height:8px; transform:translateX(-50%); z-index:3;
+  border-radius:6px; background:var(--paper); box-shadow:inset 0 1px 3px rgba(0,0,0,.35);
+}
+.flip-back .tag-hole{ background:#0b1015; }
+@media (max-width:1080px){ .tag-wrap{ margin:0 auto; } }
+
+/* badge look: caption on the photo, small flip chip */
+.flip-face{ border-radius:18px; }
+.badge-name{
+  position:absolute; left:0; right:0; bottom:0; padding:44px 20px 18px; color:#fff;
+  background:linear-gradient(180deg, transparent, rgba(8,12,15,.85));
+}
+.badge-name b{ display:block; font-family:var(--font-display); font-size:19px; font-weight:600; }
+.badge-name span{ font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; color:#33B5AF; text-transform:uppercase; }
+.flip-front .flip-hint{ top:14px; right:14px; bottom:auto; left:auto; transform:none; }
+.flip-back .flip-hint{ top:12px; right:14px; bottom:auto; left:auto; transform:none; }
+
+/* about: remove empty gaps, centre text next to the card */
+.about-content{ align-items:center; gap:56px; }
+.about-text{ padding-top:0; }
+.about-text h3{ margin-bottom:14px; }
+
+/* =========================================================
+   ABOUT — extra content (facts + buttons)
+   ========================================================= */
+.about-facts{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:26px 0 24px; max-width:560px; }
+.fact{ padding:16px; border-radius:var(--radius-sm); background:var(--paper-raised); border:1px solid var(--line); }
+.fact b{ display:block; font-family:var(--font-mono); font-size:22px; color:var(--teal); font-weight:600; }
+.fact span{ font-size:12.5px; color:var(--ink-soft); }
+.fact-wide{ grid-column:1 / -1; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+.fact-wide b{ font-size:15px; font-family:var(--font-display); color:var(--ink); }
+.about-btns{ display:flex; gap:12px; flex-wrap:wrap; }
+@media (max-width:600px){ .about-facts{ grid-template-columns:1fr 1fr; } }
+
+/* =========================================================
+   SKILLS — resume points
+   ========================================================= */
+.sg-points{ position:relative; margin-top:20px; padding-top:16px; border-top:1px dashed var(--line); display:flex; flex-direction:column; gap:9px; }
+.sg-points li{ position:relative; padding-left:18px; font-size:13px; color:var(--ink-soft); }
+.sg-points li::before{ content:"→"; position:absolute; left:0; color:var(--teal); font-family:var(--font-mono); }
+
+/* =========================================================
+   VIDEO TABS (3 videos)
+   ========================================================= */
+.video-box{ width:min(100%,960px); }
+.video-box video{ width:100%; }
+.video-tabs{ display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap; }
+.video-tabs button{
+  font-family:var(--font-mono); font-size:12.5px; padding:9px 18px; border-radius:999px; cursor:pointer;
+  background:rgba(255,255,255,.08); color:#d5dcde; border:1px solid rgba(255,255,255,.18);
+  transition:background var(--transition), color var(--transition);
+}
+.video-tabs button:hover{ background:rgba(255,255,255,.16); }
+.video-tabs button.active{ background:var(--teal); color:#0A1216; border-color:var(--teal); }
+
+.video-msg{ display:none; margin-top:14px; text-align:center; font-family:var(--font-mono); font-size:12.5px; color:#ffb4a8; }
+
+/* no swing on the ID tag */
+.tag-wrap{ animation:none !important; transform:none !important; }
+
+.tag-wrap{ animation:none !important; }
+
+
+/* ===== hero decorations (replace the old skill chips) ===== */
+.spin-badge{
+  position:absolute; z-index:3; top:8%; left:0; width:118px; height:118px; border-radius:50%;
+  background:var(--paper-raised); border:1px solid var(--line); box-shadow:var(--shadow-md);
+  display:flex; align-items:center; justify-content:center;
+}
+.spin-badge svg{ position:absolute; inset:0; width:100%; height:100%; animation:spinSlow 18s linear infinite; }
+.spin-badge text{ font-family:var(--font-mono); font-size:10px; font-weight:600; fill:var(--ink); letter-spacing:.5px; }
+.spin-star{ color:var(--teal); font-size:26px; line-height:1; }
+@keyframes spinSlow{ to{ transform:rotate(360deg); } }
+
+.mini-chart{
+  position:absolute; z-index:3; left:-2%; bottom:14%; padding:14px 16px 12px; border-radius:14px;
+  background:var(--paper-raised); border:1px solid var(--line); box-shadow:var(--shadow-md);
+}
+.mc-bars{ display:flex; align-items:flex-end; gap:6px; height:48px; }
+.mc-bars i{
+  display:block; width:9px; height:var(--h); border-radius:3px; background:var(--teal);
+  transform-origin:bottom; animation:barGrow 2.4s ease-in-out infinite; animation-delay:var(--d);
+}
+.mini-chart span{ display:block; margin-top:8px; font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); }
+@keyframes barGrow{ 0%,100%{ transform:scaleY(.55); } 50%{ transform:scaleY(1); } }
+
+@media (max-width:768px){
+  .spin-badge{ width:88px; height:88px; top:4%; }
+  .spin-badge text{ font-size:8.5px; }
+  .spin-star{ font-size:20px; }
+  .mini-chart{ left:0; bottom:10%; transform:scale(.85); transform-origin:left bottom; }
+}
+
+/* =========================================================
+   HERO — clean two columns, original colours (photo on the side)
+   ========================================================= */
+.hero-stage{
+  position:relative; z-index:1; width:100%; max-width:540px; height:520px; margin-left:auto;
+  display:flex; align-items:center; justify-content:flex-start;
+}
+.stage-photo{
+  position:relative; z-index:1; width:350px; height:470px; object-fit:cover; object-position:center top;
+  border-radius:28px; border:1px solid var(--line);
+  box-shadow:16px -16px 0 0 var(--teal), 0 24px 60px rgba(16,22,28,.16);
+}
+.hero-stage .reel-card{
+  position:absolute; z-index:4; right:0; bottom:28px; width:158px; height:196px; border-radius:20px;
+  padding:0 0 14px; gap:12px; transform:rotate(-4deg);
+}
+.hero-stage .reel-card:hover{ transform:rotate(0) scale(1.05); }
+.hero-stage .reel-play{ width:52px; height:52px; font-size:17px; }
+.hero-stage .reel-label{ font-size:10.5px; letter-spacing:.16em; }
+.reel-star{ position:absolute; right:14px; bottom:12px; font-size:22px; line-height:1; color:rgba(255,255,255,.28); }
+
+@media (max-width:1080px){
+  .hero-stage{ height:520px; margin:20px auto 0; }
+}
+@media (max-width:768px){
+  .hero-stage{ height:450px; max-width:100%; justify-content:center; }
+  .stage-photo{ width:min(78%,320px); height:410px; }
+  .hero-stage .reel-card{ width:118px; height:150px; right:0; bottom:16px; }
+  .hero-stage .reel-play{ width:40px; height:40px; font-size:14px; }
+  .reel-star{ display:none; }
+}
+</style>
 </head>
 <body>
 
@@ -28,13 +325,13 @@
   <button id="menuBtn" class="menu-btn" aria-label="Open menu">☰</button>
 </header>
 
-<!-- ================= HOME ================= -->
-<section id="home" class="hero">
+<!-- ================= HOME (NEW CREATIVE HERO) ================= -->
+<section id="home" class="hero hero-creative">
 
   <div class="hero-content">
     <p class="eyebrow"><span class="dot"></span>Available for opportunities</p>
 
-    <h1>Rajeshwari&nbsp;M&nbsp;B</h1>
+    <h1>Hi, I'm<br>Rajeshwari M B</h1>
     <h2>Data Analyst</h2>
 
     <div class="query-line">
@@ -49,8 +346,9 @@
     </p>
 
     <div class="hero-buttons">
-      <a href="resume/resume.pdf" class="primary-btn" download>Download Resume</a>
+      <a href="resume/Rajeshwari Data analyst.pdf" class="primary-btn" download>Download Resume</a>
       <a href="#projects" class="secondary-btn">View Projects →</a>
+      <button type="button" class="secondary-btn intro-btn" data-video="videos/intro.mp4">▶ Watch Intro</button>
     </div>
 
     <div class="social-links">
@@ -60,15 +358,15 @@
     </div>
   </div>
 
-  <div class="hero-panel">
-    <div class="portrait">
-      <img src="images/profile/profile.jpeg" alt="Rajeshwari M B">
-    </div>
-    <div class="mini-table">
-      <div class="mini-row"><span>role</span><span>data_analyst</span></div>
-      <div class="mini-row"><span>tools</span><span>py · sql · pbi</span></div>
-      <div class="mini-row"><span>status</span><span class="status-ok">open_to_work</span></div>
-    </div>
+  <div class="hero-stage">
+
+    <img class="stage-photo" src="images/profile/profile.jpeg" alt="Rajeshwari M B">
+
+    <button type="button" class="reel-card" data-video="videos/intro.mp4" aria-label="Play intro video">
+      <span class="reel-play">▶</span>
+      <span class="reel-label">PLAY REEL</span>
+      <span class="reel-star">✦</span>
+    </button>
   </div>
 
 </section>
@@ -89,28 +387,58 @@
   </div>
 
   <div class="about-content">
-    <div class="about-image">
-      <img src="images/profile/profile.jpeg" alt="Rajeshwari M B">
+    <div class="tag-wrap">
+      <svg class="tag-string" viewBox="0 0 120 86" aria-hidden="true">
+        <path d="M52 86 L60 17 L68 86" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="60" cy="10" r="7" fill="none" stroke="#8b969c" stroke-width="3"/>
+      </svg>
+      <div class="flip-card" id="flipCard" tabindex="0" role="button" aria-label="Click to flip the card">
+      <div class="flip-inner">
+        <div class="flip-face flip-front">
+          <span class="tag-hole"></span>
+          <img src="images/profile/profile.jpeg" alt="Rajeshwari M B">
+          <div class="badge-name"><b>Rajeshwari M B</b><span>Data Analyst</span></div>
+          <span class="flip-hint">↻ Flip</span>
+        </div>
+        <div class="flip-face flip-back">
+          <span class="tag-hole"></span>
+          <h3 class="id-name">Rajeshwari M B<span>.</span></h3>
+          <p class="id-role">DATA ANALYST · CSE GRADUATE</p>
+          <ul class="id-list">
+            <li><span>✉</span>rajeshwarirm2004@gmail.com</li>
+            <li><span>☎</span>+91 XXXXX XXXXX</li>
+            <li><span>⌖</span>Mandya, Karnataka</li>
+            <li><a href="https://www.linkedin.com/in/rajeshwari-mb-7712402a6" target="_blank" rel="noopener"><span>in</span>LinkedIn</a></li>
+            <li><a href="https://github.com/Rajeshwari-40" target="_blank" rel="noopener"><span>⌥</span>GitHub</a></li>
+          </ul>
+          <div class="id-qr-row">
+            <div id="qrBox" class="id-qr"></div>
+            <p>Scan to<br>connect</p>
+          </div>
+          <span class="flip-hint">↻ Flip back</span>
+        </div>
+      </div>
+    </div>
     </div>
 
     <div class="about-text">
       <h3>Turning Data Into Meaningful Insights</h3>
 
-      <p>Hello! I'm Rajeshwari M B, a Computer Science Engineering graduate
-      and an aspiring Data Analyst.</p>
+      <p>Hi, I'm Rajeshwari, a Computer Science graduate who loves working with data.</p>
 
-      <p>I'm interested in exploring data, spotting the patterns hiding in
-      it, and building dashboards that turn numbers into decisions people
-      can actually act on.</p>
+      <p>I use Python, SQL, Excel and Power BI to clean data, find patterns and build dashboards that are easy to understand.</p>
 
-      <p>My core toolkit is Python, Pandas, SQL, Excel and Power BI — and
-      I'm sharpening it further with every project I take on.</p>
+      <p>I'm always learning, and I enjoy turning numbers into something people can actually use.</p>
 
-      <div class="about-points">
-        <div><span>→</span>Data Analysis</div>
-        <div><span>→</span>Data Visualization</div>
-        <div><span>→</span>Dashboard Development</div>
-        <div><span>→</span>Business Insights</div>
+      <div class="about-facts">
+        <div class="fact"><b>2026</b><span>CSE Graduate</span></div>
+        <div class="fact"><b>03</b><span>Internships</span></div>
+        <div class="fact"><b>06</b><span>Certifications</span></div>
+        <div class="fact fact-wide"><b>Focus</b><span>Data analysis · Dashboards · Business insights</span></div>
+      </div>
+
+      <div class="about-btns">
+        <a href="#contact" class="secondary-btn">Contact Me →</a>
       </div>
     </div>
   </div>
@@ -124,6 +452,27 @@
   </div>
 
   <div class="timeline">
+
+<div class="timeline-item">
+      <div class="timeline-marker"></div>
+      <div class="timeline-card">
+        <div class="timeline-head">
+          <div>
+            <h3>Data Analytics Trainee </h3>
+            <p class="timeline-company">Tap Academy</p>
+          </div>
+          <span class="timeline-date">July 2026 – Present</span>
+        </div>
+        <ul class="timeline-points">
+          <li>Gained practical knowledge of data analytics and data analysis techniques.</li>
+          <li>Learned to use AI tools for data analytics and explored AI-assisted analysis approaches.</li>
+          <li>Developed skills in Excel-based data analysis and extracting meaningful insights.</li>
+          <li>Training in end-to-end data analytics: data cleaning, analysis and visualization using Excel, SQL, Python and Power BI.</li>
+          <li>Working on real-world datasets to perform EDA, write SQL queries and build dashboards that turn data into business insights.</li>
+        </ul>
+      </div>
+    </div>
+
 
     <div class="timeline-item">
       <div class="timeline-marker"></div>
@@ -188,15 +537,29 @@
     <h2>Technical Skills</h2>
   </div>
 
-  <div class="skills-grid">
-    <div class="skill-card"><span class="skill-icon">🐍</span><h3>Python</h3><p>Data analysis &amp; automation</p></div>
-    <div class="skill-card"><span class="skill-icon">🗄️</span><h3>SQL</h3><p>Queries &amp; data analysis</p></div>
-    <div class="skill-card"><span class="skill-icon">📊</span><h3>Excel</h3><p>Analysis &amp; dashboards</p></div>
-    <div class="skill-card"><span class="skill-icon">📈</span><h3>Power BI</h3><p>Interactive dashboards</p></div>
-    <div class="skill-card"><span class="skill-icon">🐼</span><h3>Pandas</h3><p>Data cleaning &amp; analysis</p></div>
-    <div class="skill-card"><span class="skill-icon">🔢</span><h3>NumPy</h3><p>Numerical computing</p></div>
-    <div class="skill-card"><span class="skill-icon">🌐</span><h3>HTML &amp; CSS</h3><p>Web development</p></div>
-    <div class="skill-card"><span class="skill-icon">🔧</span><h3>Git &amp; GitHub</h3><p>Version control</p></div>
+  <div class="skill-marquee"><div class="marquee-track"><span>Python</span><span>SQL</span><span>Excel</span><span>Power BI</span><span>Pandas</span><span>NumPy</span><span>DAX</span><span>Matplotlib</span><span>Flask</span><span>Git &amp; GitHub</span><span>HTML &amp; CSS</span><span>Java</span><span>Python</span><span>SQL</span><span>Excel</span><span>Power BI</span><span>Pandas</span><span>NumPy</span><span>DAX</span><span>Matplotlib</span><span>Flask</span><span>Git &amp; GitHub</span><span>HTML &amp; CSS</span><span>Java</span></div></div>
+
+  <div class="skill-groups">
+    <div class="skill-group">
+      <div class="sg-top"><span class="sg-icon">🔍</span><h3>Analyze</h3></div>
+      <p class="sg-desc">Clean, explore and query data to find the story in it.</p>
+      <div class="sg-pills"><span>🐍 Python</span><span>🗄️ SQL</span><span>🐼 Pandas</span><span>🔢 NumPy</span><span>📊 Excel</span></div>
+      <ul class="sg-points"><li>Analyzed Netflix titles by genre, country and release year using Pandas</li><li>Excel-based analysis and insights during IBM SkillsBuild internship</li><li>SQL queries for backend data in a Java Spring Boot app</li></ul>
+    </div>
+
+    <div class="skill-group">
+      <div class="sg-top"><span class="sg-icon">📈</span><h3>Visualize</h3></div>
+      <p class="sg-desc">Turn numbers into dashboards people can act on.</p>
+      <div class="sg-pills"><span>📈 Power BI</span><span>🧮 DAX</span><span>📊 Excel Dashboards</span><span>🎨 Matplotlib</span></div>
+      <ul class="sg-points"><li>Built a Sales Performance dashboard in Power BI</li><li>Developed an HR Analytics dashboard with DAX measures</li><li>Charts and trend plots using Matplotlib</li></ul>
+    </div>
+
+    <div class="skill-group">
+      <div class="sg-top"><span class="sg-icon">🛠️</span><h3>Build</h3></div>
+      <p class="sg-desc">Ship working apps and keep the code organised.</p>
+      <div class="sg-pills"><span>🌐 HTML &amp; CSS</span><span>🔧 Git &amp; GitHub</span><span>⚗️ Flask</span><span>☕ Java</span></div>
+      <ul class="sg-points"><li>Flask bank management system backed by a SQL schema</li><li>REST APIs with Java &amp; Spring Boot at CampusPe</li><li>Version control with Git &amp; GitHub</li></ul>
+    </div>
   </div>
 </section>
 
@@ -243,6 +606,16 @@
     </div>
 
     <div class="project-card">
+      <div class="project-icon-header project-icon-header--chatbot"><span>💬</span></div>
+      <div class="project-content">
+        <h3>Customer Churn Prediction &amp; Analytics Dashboard</h3>
+        <p>I analyzed 7,043 telecom customers using SQL and Python Pandas and found that 26.5% of customers stopped using the service, causing a monthly revenue loss of $139K. I found that customers with month-to-month contracts were more likely to leave. I built three machine learning models and used XGBoost to predict customer churn. I also used SHAP to understand the main reasons for churn and created an interactive Streamlit dashboard to identify 611 high-risk customers.</p>
+        <div class="project-tech"><span>Python</span><span>NumPy</span><span>Pandas</span><span>Excel</span></div>
+        <a href="https://github.com/Rajeshwari-40" target="_blank" class="project-btn">View on GitHub →</a>
+      </div>
+    </div>
+
+    <div class="project-card">
       <div class="project-icon-header project-icon-header--nlp"><span>🗣️</span></div>
       <div class="project-content">
         <h3>Cyberbullying Detection using NLP</h3>
@@ -285,6 +658,15 @@
 <div id="lightbox" class="lightbox" aria-hidden="true">
   <button type="button" id="lightboxClose" class="lightbox-close" aria-label="Close">✕</button>
   <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- ================= INTRO VIDEO POPUP ================= -->
+<div id="videoModal" class="video-modal" aria-hidden="true">
+  <button type="button" id="videoClose" class="lightbox-close" aria-label="Close video">✕</button>
+  <video id="introVideo" controls playsinline preload="none" poster="images/profile/profile.jpeg">
+    <source src="videos/intro.mp4" type="video/mp4">
+    Your browser does not support video.
+  </video>
 </div>
 
 <!-- ================= CERTIFICATES ================= -->
@@ -353,16 +735,6 @@
   </div>
 </section>
 
-<!-- ================= RESUME CTA ================= -->
-<section class="resume-section">
-  <div>
-    <p class="eyebrow"><span class="dot"></span>Looking for an opportunity?</p>
-    <h2>Let's work with data together.</h2>
-    <p>Download my resume to know more about my education, skills and projects.</p>
-  </div>
-  <a href="resume/resume.pdf" class="primary-btn" download>Download Resume ↓</a>
-</section>
-
 <!-- ================= CONTACT ================= -->
 <section id="contact" class="section contact-section">
   <div class="section-heading">
@@ -401,6 +773,251 @@
 
 <button id="topBtn" aria-label="Back to top">↑</button>
 
-<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// =========================================================
+// THEME TOGGLE
+// =========================================================
+const themeBtn = document.getElementById('themeBtn');
+const root = document.documentElement;
+
+function applyTheme(theme){
+  root.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'dark' ? '☀' : '◐';
+  localStorage.setItem('portfolio-theme', theme);
+}
+
+const savedTheme = localStorage.getItem('portfolio-theme')
+  || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(savedTheme);
+
+themeBtn.addEventListener('click', () => {
+  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+});
+
+// =========================================================
+// TYPING EFFECT — hero query line
+// =========================================================
+const typeTarget = document.getElementById('typeTarget');
+const queries = [
+  "SELECT insight FROM raw_data;",
+  "df.groupby('trend').mean()",
+  "CREATE DASHBOARD sales_performance;"
+];
+
+let qIndex = 0, charIndex = 0, deleting = false;
+
+function typeLoop(){
+  const current = queries[qIndex];
+
+  if (!deleting){
+    charIndex++;
+    typeTarget.textContent = current.slice(0, charIndex);
+    if (charIndex === current.length){
+      deleting = true;
+      setTimeout(typeLoop, 1600);
+      return;
+    }
+  } else {
+    charIndex--;
+    typeTarget.textContent = current.slice(0, charIndex);
+    if (charIndex === 0){
+      deleting = false;
+      qIndex = (qIndex + 1) % queries.length;
+    }
+  }
+  setTimeout(typeLoop, deleting ? 30 : 55);
+}
+typeLoop();
+
+// =========================================================
+// SCROLL REVEAL
+// =========================================================
+const revealTargets = document.querySelectorAll(
+  '.section-heading, .about-content, .timeline-card, .skill-card, .project-card, .certificate-card, .contact-card, .stat-card'
+);
+revealTargets.forEach(el => el.classList.add('reveal'));
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      entry.target.classList.add('in-view');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+revealTargets.forEach(el => observer.observe(el));
+
+// =========================================================
+// BACK TO TOP
+// =========================================================
+const topBtn = document.getElementById('topBtn');
+window.addEventListener('scroll', () => {
+  topBtn.classList.toggle('show', window.scrollY > 500);
+});
+topBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+// =========================================================
+// LIGHTBOX — full-size dashboard image viewer
+// =========================================================
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxClose = document.getElementById('lightboxClose');
+
+function openLightbox(src, alt){
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || '';
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(){
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('[data-lightbox]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openLightbox(btn.getAttribute('data-lightbox'), btn.getAttribute('data-lightbox-alt'));
+  });
+});
+
+lightboxClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// =========================================================
+// MOBILE MENU (simple toggle of nav visibility)
+// =========================================================
+const menuBtn = document.getElementById('menuBtn');
+const navEl = document.querySelector('.navbar nav');
+menuBtn.addEventListener('click', () => {
+  const isOpen = navEl.style.display === 'flex';
+  navEl.style.display = isOpen ? 'none' : 'flex';
+  navEl.style.flexDirection = 'column';
+  navEl.style.position = 'absolute';
+  navEl.style.top = '68px';
+  navEl.style.right = '3%';
+  navEl.style.background = 'var(--paper-raised)';
+  navEl.style.border = '1px solid var(--line)';
+  navEl.style.borderRadius = '8px';
+  navEl.style.padding = '18px';
+  navEl.style.gap = '16px';
+  navEl.style.boxShadow = 'var(--shadow)';
+});
+
+// NOTE: video popup, flip card, QR code and skills glow are in hero-extra.js
+
+// =========================================================
+// VIDEOS  — put your 3 videos in the "videos" folder
+// and make sure the file names below match exactly.
+// =========================================================
+const VIDEOS = [
+  { title: 'Video Project 7', src: 'videos/Video Project 7.mp4' }
+];
+
+const videoModal = document.getElementById('videoModal');
+const introVideo = document.getElementById('introVideo');
+const videoClose = document.getElementById('videoClose');
+
+// wrap the video + build the 3 tab buttons
+const videoBox = document.createElement('div');
+videoBox.className = 'video-box';
+introVideo.parentNode.insertBefore(videoBox, introVideo);
+videoBox.appendChild(introVideo);
+
+const videoTabs = document.createElement('div');
+videoTabs.className = 'video-tabs';
+videoBox.appendChild(videoTabs);
+
+VIDEOS.forEach((v, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = v.title;
+  b.addEventListener('click', () => playVideo(i));
+  videoTabs.appendChild(b);
+});
+
+// shows a clear message if the video file cannot be found / played
+const videoMsg = document.createElement('p');
+videoMsg.className = 'video-msg';
+videoBox.insertBefore(videoMsg, videoTabs);
+introVideo.addEventListener('error', () => {
+  videoMsg.textContent = 'Video not found: ' + introVideo.getAttribute('src') +
+    '  → check the "videos" folder and the file name.';
+  videoMsg.style.display = 'block';
+});
+
+function playVideo(i){
+  videoMsg.style.display = 'none';
+  introVideo.src = VIDEOS[i].src;
+  introVideo.play().catch(() => {});
+  [...videoTabs.children].forEach((b, n) => b.classList.toggle('active', n === i));
+}
+
+function openVideo(src){
+  let i = VIDEOS.findIndex(v => v.src === src);
+  if (i < 0) i = 0;
+  videoModal.classList.add('open');
+  videoModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  playVideo(i);
+}
+function closeVideo(){
+  introVideo.pause();
+  videoModal.classList.remove('open');
+  videoModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('[data-video]').forEach(btn => {
+  btn.addEventListener('click', () => openVideo(btn.getAttribute('data-video')));
+});
+videoClose.addEventListener('click', closeVideo);
+videoModal.addEventListener('click', e => { if (e.target === videoModal) closeVideo(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVideo(); });
+
+// =========================================================
+// ABOUT — FLIP ID CARD + QR CODE
+// =========================================================
+const flipCard = document.getElementById('flipCard');
+if (flipCard){
+  const toggleFlip = () => flipCard.classList.toggle('flipped');
+  flipCard.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;   // links on the back should still open
+    toggleFlip();
+  });
+  flipCard.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleFlip(); }
+  });
+}
+const qrBox = document.getElementById('qrBox');
+if (qrBox && typeof QRCode !== 'undefined'){
+  new QRCode(qrBox, {
+    text: 'https://www.linkedin.com/in/rajeshwari-mb-7712402a6',
+    width: 120, height: 120, colorDark: '#10161C', colorLight: '#ffffff'
+  });
+}
+
+// =========================================================
+// SKILLS — cursor spotlight on cards
+// =========================================================
+document.querySelectorAll('.skill-group').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+});
+
+</script>
 </body>
 </html>
